@@ -1,0 +1,128 @@
+import { Header } from "@/components/layout/Header";
+import { Sidebar } from "@/components/layout/Sidebar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { MessageSquare, Send, Bot, User } from "lucide-react";
+
+const conversations = [
+  {
+    id: 1,
+    message: "How can I reduce my carbon footprint in manufacturing?",
+    response: "Based on your current data, switching to renewable energy could reduce emissions by 35%. I also recommend optimizing your supply chain logistics.",
+    timestamp: "2 minutes ago"
+  },
+  {
+    id: 2,
+    message: "What's the impact of changing packaging materials?",
+    response: "Switching to biodegradable packaging could reduce your packaging-related emissions by 60% and improve your overall sustainability score.",
+    timestamp: "1 hour ago"
+  }
+];
+
+const Assistant = () => {
+  return (
+    <div className="min-h-screen bg-background">
+      <Header />
+      <div className="flex">
+        <Sidebar />
+        <main className="flex-1 p-6 space-y-6 animate-fade-in">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-bold tracking-tight gradient-hero bg-clip-text text-transparent">
+              AI Assistant
+            </h1>
+            <p className="text-muted-foreground">
+              Get intelligent insights and recommendations for your LCA analysis
+            </p>
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+              <Card className="gradient-card border-0 shadow-md h-[600px] flex flex-col">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Bot className="h-5 w-5 text-primary" />
+                    <span>AI Chat</span>
+                    <Badge variant="secondary">Online</Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="flex-1 flex flex-col">
+                  <div className="flex-1 space-y-4 overflow-y-auto mb-4">
+                    {conversations.map((conv) => (
+                      <div key={conv.id} className="space-y-3">
+                        <div className="flex items-start space-x-3">
+                          <User className="h-6 w-6 p-1 rounded-full bg-primary/10 text-primary flex-shrink-0 mt-1" />
+                          <div className="bg-muted/50 rounded-lg p-3 flex-1">
+                            <p className="text-sm">{conv.message}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start space-x-3">
+                          <Bot className="h-6 w-6 p-1 rounded-full bg-accent/10 text-accent flex-shrink-0 mt-1" />
+                          <div className="bg-accent/10 rounded-lg p-3 flex-1">
+                            <p className="text-sm">{conv.response}</p>
+                            <p className="text-xs text-muted-foreground mt-2">{conv.timestamp}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex space-x-2">
+                    <Input 
+                      placeholder="Ask about your LCA data, scenarios, or get recommendations..."
+                      className="flex-1"
+                    />
+                    <Button className="gradient-primary">
+                      <Send className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            
+            <div className="space-y-6">
+              <Card className="gradient-card border-0 shadow-md">
+                <CardHeader>
+                  <CardTitle>Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button variant="outline" className="w-full justify-start">
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Analyze Current Data
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start">
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Suggest Improvements
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start">
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Compare Scenarios
+                  </Button>
+                  <Button variant="outline" className="w-full justify-start">
+                    <MessageSquare className="h-4 w-4 mr-2" />
+                    Generate Report
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="gradient-card border-0 shadow-md">
+                <CardHeader>
+                  <CardTitle>AI Capabilities</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm text-muted-foreground">
+                  <p>• Real-time LCA analysis</p>
+                  <p>• Scenario optimization</p>
+                  <p>• Environmental impact predictions</p>
+                  <p>• Regulatory compliance checks</p>
+                  <p>• Best practice recommendations</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default Assistant;
