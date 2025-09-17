@@ -1,10 +1,13 @@
+import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { MessageSquare, Send, Bot, User } from "lucide-react";
+import { MessageSquare, Send, Bot, User, Loader2 } from "lucide-react";
+import { useLCAApi } from "@/hooks/useLCAApi";
+import { LCAQueryRequest } from "@/services/lcaApi";
 
 const conversations = [
   {
@@ -22,6 +25,44 @@ const conversations = [
 ];
 
 const Assistant = () => {
+  const [query, setQuery] = useState("");
+  const [messages, setMessages] = useState(conversations);
+  const { askLCA, loading } = useLCAApi();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!query.trim()) return;
+
+    const userMessage = {
+      id: messages.length + 1,
+      message: query,
+      response: "",
+      timestamp: "Just now"
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setQuery("");
+
+    const lcaQuery: LCAQueryRequest = {
+      query,
+      product_system: "general",
+      database: "ecoinvent",
+      confidence_required: true
+    };
+
+    const response = await askLCA(lcaQuery);
+    
+    if (response) {
+      setMessages(prev => 
+        prev.map(msg => 
+          msg.id === userMessage.id 
+            ? { ...msg, response: response.answer }
+            : msg
+        )
+      );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -49,7 +90,7 @@ const Assistant = () => {
                 </CardHeader>
                 <CardContent className="flex-1 flex flex-col">
                   <div className="flex-1 space-y-4 overflow-y-auto mb-4">
-                    {conversations.map((conv) => (
+                    {messages.map((conv) => (
                       <div key={conv.id} className="space-y-3">
                         <div className="flex items-start space-x-3">
                           <User className="h-6 w-6 p-1 rounded-full bg-primary/10 text-primary flex-shrink-0 mt-1" />
@@ -57,25 +98,41 @@ const Assistant = () => {
                             <p className="text-sm">{conv.message}</p>
                           </div>
                         </div>
-                        <div className="flex items-start space-x-3">
-                          <Bot className="h-6 w-6 p-1 rounded-full bg-accent/10 text-accent flex-shrink-0 mt-1" />
-                          <div className="bg-accent/10 rounded-lg p-3 flex-1">
-                            <p className="text-sm">{conv.response}</p>
-                            <p className="text-xs text-muted-foreground mt-2">{conv.timestamp}</p>
+                        {conv.response && (
+                          <div className="flex items-start space-x-3">
+                            <Bot className="h-6 w-6 p-1 rounded-full bg-accent/10 text-accent flex-shrink-0 mt-1" />
+                            <div className="bg-accent/10 rounded-lg p-3 flex-1">
+                              <p className="text-sm">{conv.response}</p>
+                              <p className="text-xs text-muted-foreground mt-2">{conv.timestamp}</p>
+                            </div>
                           </div>
-                        </div>
+                        )}
+                        {!conv.response && conv.id === messages[messages.length - 1]?.id && loading && (
+                          <div className="flex items-start space-x-3">
+                            <Bot className="h-6 w-6 p-1 rounded-full bg-accent/10 text-accent flex-shrink-0 mt-1" />
+                            <div className="bg-accent/10 rounded-lg p-3 flex-1">
+                              <div className="flex items-center space-x-2">
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <p className="text-sm">Analyzing your query...</p>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
-                  <div className="flex space-x-2">
+                  <form onSubmit={handleSubmit} className="flex space-x-2">
                     <Input 
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
                       placeholder="Ask about your LCA data, scenarios, or get recommendations..."
                       className="flex-1"
+                      disabled={loading}
                     />
-                    <Button className="gradient-primary">
-                      <Send className="h-4 w-4" />
+                    <Button type="submit" className="gradient-primary" disabled={loading}>
+                      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                     </Button>
-                  </div>
+                  </form>
                 </CardContent>
               </Card>
             </div>

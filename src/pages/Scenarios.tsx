@@ -1,10 +1,13 @@
+import { useState } from "react";
 import { Header } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { TrendingUp, Plus, BarChart3 } from "lucide-react";
+import { ScenarioForm } from "@/components/forms/ScenarioForm";
 
 const scenarios = [
   {
@@ -34,6 +37,16 @@ const scenarios = [
 ];
 
 const Scenarios = () => {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [userScenarios, setUserScenarios] = useState<any[]>([]);
+
+  const handleScenarioCreated = (scenario: any) => {
+    setUserScenarios(prev => [...prev, scenario]);
+    setDialogOpen(false);
+  };
+
+  const allScenarios = [...scenarios, ...userScenarios];
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -49,15 +62,22 @@ const Scenarios = () => {
                 Explore different scenarios and their environmental impact
               </p>
             </div>
-            <Button className="gradient-primary">
-              <Plus className="h-4 w-4 mr-2" />
-              New Scenario
-            </Button>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="gradient-primary">
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Scenario
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <ScenarioForm onScenarioCreated={handleScenarioCreated} />
+              </DialogContent>
+            </Dialog>
           </div>
 
           <div className="grid gap-6">
-            {scenarios.map((scenario) => (
-              <Card key={scenario.id} className="gradient-card border-0 shadow-md">
+            {allScenarios.map((scenario, index) => (
+              <Card key={scenario.id || index} className="gradient-card border-0 shadow-md">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex items-center space-x-3">
